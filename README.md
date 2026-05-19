@@ -3,6 +3,7 @@
 Lightweight Flask app that displays flight fare analytics and provides a fare prediction form powered by a trained Random Forest model.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/deep03102000/FlightForecast-Pro)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&builder=buildpack&repository=github.com/deep03102000/FlightForecast-Pro&branch=main&name=flightforecast-pro&service_type=web&instance_type=free&run_command=gunicorn%20--bind%20:%24PORT%20app:app)
 
 ## Features
 
@@ -12,7 +13,7 @@ Lightweight Flask app that displays flight fare analytics and provides a fare pr
 
 ## Prerequisites
 
-- Python 3.8
+- Python 3.13
 - Git (to clone/push repository)
 
 ## Quick start (local)
@@ -57,17 +58,26 @@ This project includes a `Procfile` and `gunicorn` in `requirements.txt`. Start w
 gunicorn --bind 0.0.0.0:8000 app:app
 ```
 
-When deploying to a PaaS (Render, Heroku, etc.) use the start command above. PaaS platforms expose the port via the `PORT` env var, so the `Procfile` already contains:
+When deploying to a PaaS (Koyeb, Render, Heroku, etc.) use the start command above. PaaS platforms expose the port via the `PORT` env var, so the `Procfile` already contains:
 
 ```
-web: gunicorn app:app
+web: gunicorn --bind :$PORT app:app
 ```
 
-## Deploying (recommended: Render)
+## Deploying (free option: Koyeb)
+
+1. Click the **Deploy to Koyeb** button above or create a new Web Service in Koyeb.
+2. Select GitHub and connect `deep03102000/FlightForecast-Pro`.
+3. Branch: `main`.
+4. Builder: `buildpack`.
+5. Instance type: `free`.
+6. Run command: `gunicorn --bind :$PORT app:app`.
+
+## Deploying on Render
 
 1. Push your repo to GitHub.
 2. Create a new Web Service on Render and connect your GitHub repo.
-3. Runtime: this repo includes `.python-version` with `3.8.18` so the pinned ML dependencies install cleanly.
+3. Runtime: this repo includes `.python-version` for Python 3.13.
 4. Build command: `pip install -r requirements.txt` (Render auto-installs by default).
 5. Start command: `gunicorn --bind 0.0.0.0:$PORT app:app`.
 6. Add any required environment variables under the service settings.
