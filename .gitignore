@@ -17,6 +17,8 @@ ENV/
 *.h5
 *.xlsx
 *.csv
+!flight_rf.pkl
+!Data_Train.xlsx
 
 # VS Code
 .vscode/
