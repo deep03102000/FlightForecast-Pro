@@ -152,6 +152,11 @@ def home():
     return render_template("home.html", dashboard=dashboard, prediction_text="")
 
 
+@app.route("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
 
 
 @app.route("/predict", methods = ["GET", "POST"])
