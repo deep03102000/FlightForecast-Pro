@@ -4,13 +4,39 @@ import pickle
 import pandas as pd
 
 app = Flask(__name__)
-model = pickle.load(open("flight_rf.pkl", "rb"))
+model = None
+model_load_error = None
+flight_data = None
+flight_data_loaded = False
 
-try:
-    flight_data = pd.read_excel("Data_Train.xlsx")
-    flight_data.dropna(inplace=True)
-except Exception:
-    flight_data = None
+
+def get_model():
+    global model, model_load_error
+    if model is not None:
+        return model
+    if model_load_error is not None:
+        raise model_load_error
+    try:
+        with open("flight_rf.pkl", "rb") as model_file:
+            model = pickle.load(model_file)
+    except Exception as exc:
+        model_load_error = exc
+        raise
+    return model
+
+
+def get_flight_data():
+    global flight_data, flight_data_loaded
+    if flight_data_loaded:
+        return flight_data
+    flight_data_loaded = True
+    try:
+        flight_data = pd.read_excel("Data_Train.xlsx")
+        flight_data.dropna(inplace=True)
+    except Exception as exc:
+        print(f"Dashboard data could not be loaded: {exc}", flush=True)
+        flight_data = None
+    return flight_data
 
 
 def normalize_duration(duration_text):
@@ -46,10 +72,11 @@ def parse_datetime_input(value):
 
 
 def get_dashboard_data():
-    if flight_data is None:
+    source_data = get_flight_data()
+    if source_data is None:
         return {}
 
-    df = flight_data.copy()
+    df = source_data.copy()
     if "Total_Stops" in df.columns:
         df["Total_Stops"] = df["Total_Stops"].replace({"non-stop": "0 stop", "non stop": "0 stop"})
 
@@ -449,37 +476,45 @@ def predict():
     #    'Destination_Cochin', 'Destination_Delhi', 'Destination_Hyderabad',
     #    'Destination_Kolkata', 'Destination_New Delhi']
         
-        prediction=model.predict([[
-            Total_stops,
-            Journey_day,
-            Journey_month,
-            Dep_hour,
-            Dep_min,
-            Arrival_hour,
-            Arrival_min,
-            dur_hour,
-            dur_min,
-            Air_India,
-            GoAir,
-            IndiGo,
-            Jet_Airways,
-            Jet_Airways_Business,
-            Multiple_carriers,
-            Multiple_carriers_Premium_economy,
-            SpiceJet,
-            Trujet,
-            Vistara,
-            Vistara_Premium_economy,
-            s_Chennai,
-            s_Delhi,
-            s_Kolkata,
-            s_Mumbai,
-            d_Cochin,
-            d_Delhi,
-            d_Hyderabad,
-            d_Kolkata,
-            d_New_Delhi
-        ]])
+        try:
+            prediction = get_model().predict([[
+                Total_stops,
+                Journey_day,
+                Journey_month,
+                Dep_hour,
+                Dep_min,
+                Arrival_hour,
+                Arrival_min,
+                dur_hour,
+                dur_min,
+                Air_India,
+                GoAir,
+                IndiGo,
+                Jet_Airways,
+                Jet_Airways_Business,
+                Multiple_carriers,
+                Multiple_carriers_Premium_economy,
+                SpiceJet,
+                Trujet,
+                Vistara,
+                Vistara_Premium_economy,
+                s_Chennai,
+                s_Delhi,
+                s_Kolkata,
+                s_Mumbai,
+                d_Cochin,
+                d_Delhi,
+                d_Hyderabad,
+                d_Kolkata,
+                d_New_Delhi
+            ]])
+        except Exception as exc:
+            dashboard = get_dashboard_data()
+            return render_template(
+                "home.html",
+                prediction_text=f"Prediction model could not be loaded: {exc}",
+                dashboard=dashboard,
+            )
 
         output=round(prediction[0],2)
 
