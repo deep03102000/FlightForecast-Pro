@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FlightForecast Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      body {
+        background: #eef2ff;
+        color: #1f2937;
+      }
+
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #374bff 0%,
+          #3c79ff 45%,
+          #a3b8ff 100%
+        );
+        color: white;
+        border-radius: 1.5rem;
+        padding: 2.5rem 1.5rem;
+      }
+
+      .hero-image {
+        width: 100%;
+        max-width: 460px;
+        max-height: 420px;
+        object-fit: contain;
+        margin: 0 auto;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      .section-block {
+        padding: 2rem;
+        background: white;
+        border-radius: 1.75rem;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      }
+
+      .metric-card {
+        border: none;
+        border-radius: 1.5rem;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+      }
+
+      .dashboard-card {
+        border-radius: 1.5rem;
+        border: none;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      }
+
+      .section-title {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .chart-card {
+        min-height: 340px;
+      }
+
+      @media (max-width: 767px) {
+        .hero {
+          border-radius: 1.2rem;
+        }
+
+        .chart-card {
+          min-height: 300px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="bg-slate-950 text-white shadow-sm sticky top-0 z-50">
+      <div
+        class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8"
+      >
+        <a class="text-xl font-semibold tracking-[0.05em] text-white" href="#"
+          >FlightForecast Pro</a
+        >
+        <div class="flex flex-wrap items-center gap-3 text-sm font-medium">
+          <a class="text-slate-100 hover:text-white" href="#insightsSection"
+            >Dashboard</a
+          >
+          <a class="text-slate-100 hover:text-white" href="#predictSection"
+            >Predict</a
+          >
+          <a class="text-slate-100 hover:text-white" href="#about">About</a>
+          <a class="text-slate-100 hover:text-white" href="#contact">Contact</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero py-6 mb-4 mt-4">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-8 lg:grid-cols-[1.3fr_1fr] items-center">
+          <div>
+            <div
+              class="rounded-[32px] bg-white/10 border border-white/20 p-5 sm:p-6"
+            >
+              <span
+                class="inline-flex items-center rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Smart Travel Intelligence
+              </span>
+              <h1
+                class="mt-6 text-4xl font-bold tracking-tight text-white sm:text-5xl"
+              >
+                Next-level flight pricing with a professional dashboard.
+              </h1>
+              <p class="mt-4 max-w-2xl text-lg leading-8 text-white/85 mb-4">
+                Monitor trends, compare airline data and predict fares from a
+                smart dashboard built for faster decision-making.
+              </p>
+              <div class="flex flex-wrap gap-3 mt-3">
+                <a
+                  class="inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-slate-100"
+                  href="#predictSection"
+                  >Predict Price</a
+                >
+                <a
+                  class="inline-flex rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+                  href="#insightsSection"
+                  >View insights</a
+                >
+              </div>
+            </div>
+          </div>
+          <div class="text-center">
+            <img
+              src="{{ url_for('static', filename='bgimage.png') }}"
+              alt="Flight dashboard overview"
+              class="mx-auto w-full max-w-md rounded-3xl border-4 border-white/30 shadow-xl hero-image"
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+      <section id="predictSection" class="section-block mb-5">
+        <div class="max-w-5xl mx-auto">
+          <div
+            class="bg-white rounded-[32px] shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-8 sm:p-10"
+          >
+            <div class="text-center mb-8">
+              <span
+                class="inline-flex items-center rounded-full bg-indigo-100 text-indigo-700 px-4 py-2 text-sm font-semibold"
+                >Live prediction</span
+              >
+              <h2 class="mt-5 text-3xl sm:text-4xl font-bold text-slate-900">
+                Predict your flight fare
+              </h2>
+              <p class="mt-3 text-slate-600 max-w-2xl mx-auto">
+                Use the model to estimate pricing for your next trip.
+              </p>
+            </div>
+            <form action="/predict" method="post" class="space-y-6">
+              <div class="grid gap-5 lg:grid-cols-2">
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700"
+                    >Departure</label
+                  >
+                  <input
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500"
+                    type="datetime-local"
+                    name="Dep_Time"
+                    required
+                  />
+                  <p class="text-xs text-slate-500">dd-mm-yyyy --:--</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700"
+                    >Arrival</label
+                  >
+                  <input
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500"
+                    type="datetime-local"
+                    name="Arrival_Time"
+                    required
+                  />
+                  <p class="text-xs text-slate-500">dd-mm-yyyy --:--</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700"
+                    >Source</label
+                  >
+                  <select
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500"
+                    name="Source"
+                    required
+                  >
+                    <option value="Delhi" selected>Delhi</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Chennai">Chennai</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700"
+                    >Destination</label
+                  >
+                  <select
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500"
+                    name="Destination"
+                    required
+                  >
+                    <option value="Cochin" selected>Cochin</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="New_Delhi">New Delhi</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Kolkata">Kolkata</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-slate-700"
+                    >Stops</label
+                  >
+                  <select
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500"
+                    name="stops"
+                    required
+                  >
+                    <option value="0" selected>Non-stop</option>
+                    <option value="1">1 stop</option>
+                    <option value="2">2 stops</option>
+                    <option value="3">3 stops</option>
+                    <option value="4">4 stops</option>
+                  </select>
+                </div>
+                <div class="space-y-2 lg:col-span-2">
+                  <label class="block text-sm font-semibold text-slate-700"
+                    >Airline</label
+                  >
+                  <select
+                    class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500"
+                    name="airline"
+                    required
+                  >
+                    <option value="Jet Airways" selected>Jet Airways</option>
+                    <option value="IndiGo">IndiGo</option>
+                    <option value="Air India">Air India</option>
+                    <option value="Multiple carriers">Multiple carriers</option>
+                    <option value="SpiceJet">SpiceJet</option>
+                    <option value="Vistara">Vistara</option>
+                    <option value="Air Asia">Air Asia</option>
+                    <option value="GoAir">GoAir</option>
+                    <option value="Multiple carriers Premium economy">
+                      Multiple carriers Premium economy
+                    </option>
+                    <option value="Jet Airways Business">
+                      Jet Airways Business
+                    </option>
+                    <option value="Vistara Premium economy">
+                      Vistara Premium economy
+                    </option>
+                    <option value="Trujet">Trujet</option>
+                  </select>
+                </div>
+              </div>
+              <div class="text-center">
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-700"
+                >
+                  Estimate fare
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        {% if prediction_text %}
+        <div class="mt-6">
+          <div class="bg-slate-50 rounded-3xl p-6 text-center">
+            <p class="text-slate-600 mb-2">
+              Estimated fare based on your selected itinerary.
+            </p>
+            <h3 class="text-2xl font-semibold text-slate-900">
+              {{ prediction_text }}
+            </h3>
+            <p class="mt-4 text-sm text-slate-500">
+              The prediction uses the trained Random Forest model from the
+              project dataset.
+            </p>
+          </div>
+        </div>
+        {% endif %}
+      </section>
+
+      <section id="insightsSection" class="section-block mb-5">
+        <div class="mb-6 grid gap-3 sm:grid-cols-2 items-center">
+          <div>
+            <p class="text-sm uppercase tracking-[0.2em] text-slate-500 mb-2">
+              Dashboard overview
+            </p>
+            <h2 class="section-title">Flight Price Analytics</h2>
+          </div>
+          <div class="text-sm text-slate-600 md:text-right">
+            <p class="mb-1 text-slate-600">
+              Data summary from the training dataset
+            </p>
+            <span
+              class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-indigo-600"
+              >Built for efficient analysis</span
+            >
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="metric-card bg-white p-6 shadow-sm h-full">
+            <span class="text-xs uppercase tracking-[0.2em] text-slate-500"
+              >Total records</span
+            >
+            <h3 class="mt-3 text-2xl font-semibold">
+              {{ dashboard.total_flights or 0 }}
+            </h3>
+            <p class="text-slate-500 mb-0">Flights in the dataset.</p>
+          </div>
+          <div class="metric-card bg-white p-6 shadow-sm h-full">
+            <span class="text-xs uppercase tracking-[0.2em] text-slate-500"
+              >Average price</span
+            >
+            <h3 class="mt-3 text-2xl font-semibold">
+              ₹ {{ dashboard.avg_price or 0 }}
+            </h3>
+            <p class="text-slate-500 mb-0">Typical fare in the dataset.</p>
+          </div>
+          <div class="metric-card bg-white p-6 shadow-sm h-full">
+            <span class="text-xs uppercase tracking-[0.2em] text-slate-500"
+              >Price range</span
+            >
+            <h3 class="mt-3 text-2xl font-semibold">
+              ₹ {{ dashboard.min_price or 0 }} - ₹ {{ dashboard.max_price or 0
+              }}
+            </h3>
+            <p class="text-slate-500 mb-0">
+              Observed minimum and maximum fares.
+            </p>
+          </div>
+          <div class="metric-card bg-white p-6 shadow-sm h-full">
+            <span class="text-xs uppercase tracking-[0.2em] text-slate-500"
+              >Avg. duration</span
+            >
+            <h3 class="mt-3 text-2xl font-semibold">
+              {{ dashboard.avg_duration or 0 }} min
+            </h3>
+            <p class="text-slate-500 mb-0">Average trip length in minutes.</p>
+          </div>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-2 mt-4">
+          <div class="dashboard-card bg-white p-6 shadow-sm chart-card">
+            <div class="mb-3">
+              <h5 class="mb-1">Airline distribution</h5>
+              <p class="text-slate-500 mb-0">Top airlines by record count.</p>
+            </div>
+            <canvas id="airlineChart"></canvas>
+          </div>
+          <div class="dashboard-card bg-white p-6 shadow-sm chart-card">
+            <div class="mb-3">
+              <h5 class="mb-1">Stops distribution</h5>
+              <p class="text-slate-500 mb-0">
+                How many flights are non-stop vs stops.
+              </p>
+            </div>
+            <canvas id="stopsChart"></canvas>
+          </div>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-2 mt-4">
+          <div class="dashboard-card bg-white p-6 shadow-sm chart-card">
+            <div class="mb-3">
+              <h5 class="mb-1">Monthly price trend</h5>
+              <p class="text-slate-500 mb-0">
+                Average predicted fare by travel month.
+              </p>
+            </div>
+            <canvas id="monthlyChart"></canvas>
+          </div>
+          <div class="dashboard-card bg-white p-6 shadow-sm chart-card">
+            <div class="mb-3">
+              <h5 class="mb-1">Top routes</h5>
+              <p class="text-slate-500 mb-0">
+                Most common source-destination combinations.
+              </p>
+            </div>
+            <canvas id="routeChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="mb-5">
+        <div class="dashboard-card bg-white p-6 shadow-sm">
+          <div class="grid gap-6 lg:grid-cols-[2fr_1fr] items-center">
+            <div>
+              <h3 class="text-2xl font-semibold text-slate-900">
+                About FlightForecast Pro
+              </h3>
+              <p class="mt-4 text-slate-600 leading-7">
+                FlightForecast Pro is built to display flight fare analytics and
+                enable fast predictions with a modern dashboard. It brings
+                visual insights together with predictive pricing so you can plan
+                travel with confidence.
+              </p>
+            </div>
+            <div class="rounded-3xl bg-slate-50 p-5">
+              <p
+                class="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500"
+              >
+                Current dataset
+              </p>
+              <h4 class="mb-1 text-xl font-semibold text-slate-900">
+                Flight Price Records
+              </h4>
+              <p class="text-slate-500">Data from the local training file.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="mb-5">
+        <div class="dashboard-card bg-white p-6 shadow-sm">
+          <div class="grid gap-6 md:grid-cols-[2fr_1fr] items-start">
+            <div>
+              <h5 class="text-xl font-semibold text-slate-900">Contact</h5>
+              <p class="mt-3 text-slate-600 leading-7">
+                Need help setting up the model or customizing the interface?
+                Reach out for support.
+              </p>
+            </div>
+            <div class="space-y-3 rounded-3xl bg-slate-50 p-5">
+              <p class="text-slate-700">
+                <span class="font-semibold">Email:</span>
+                deepsadhukhan1234@gmail.com
+              </p>
+              <p class="text-slate-700">
+                <span class="font-semibold">Address:</span> Sector 5, Salt Lake,
+                Kolkata, India
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const airlineLabels = {{ dashboard.airline_labels | tojson | safe }} || [];
+      const airlineCounts = {{ dashboard.airline_counts | tojson | safe }} || [];
+      const stopsLabels = {{ dashboard.stops_labels | tojson | safe }} || [];
+      const stopsCounts = {{ dashboard.stops_counts | tojson | safe }} || [];
+      const routeLabels = {{ dashboard.route_labels | tojson | safe }} || [];
+      const routeCounts = {{ dashboard.route_counts | tojson | safe }} || [];
+      const monthlyAvg = {{ dashboard.monthly_avg | tojson | safe }} || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+      const primaryColors = [
+          '#4f46e5', '#38bdf8', '#60a5fa', '#818cf8', '#a5b4fc', '#c7d2fe'
+      ];
+
+      const routeChart = document.getElementById('routeChart');
+      if (routeChart) {
+          new Chart(routeChart, {
+              type: 'bar',
+              data: {
+                  labels: routeLabels.length ? routeLabels : ['No data'],
+                  datasets: [{
+                      label: 'Route volume',
+                      data: routeCounts.length ? routeCounts : [1],
+                      backgroundColor: primaryColors,
+                      borderRadius: 12,
+                  }],
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: { display: false },
+                  },
+                  scales: {
+                      y: { beginAtZero: true, ticks: { precision: 0 } }
+                  }
+              }
+          });
+      }
+
+      const airlineChart = document.getElementById('airlineChart');
+      if (airlineChart) {
+          new Chart(airlineChart, {
+              type: 'doughnut',
+              data: {
+                  labels: airlineLabels.length ? airlineLabels : ['No data'],
+                  datasets: [{
+                      data: airlineCounts.length ? airlineCounts : [1],
+                      backgroundColor: primaryColors,
+                      hoverOffset: 8,
+                  }],
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: { position: 'bottom' }
+                  }
+              }
+          });
+      }
+
+      const stopsChart = document.getElementById('stopsChart');
+      if (stopsChart) {
+          new Chart(stopsChart, {
+              type: 'pie',
+              data: {
+                  labels: stopsLabels.length ? stopsLabels : ['No data'],
+                  datasets: [{
+                      data: stopsCounts.length ? stopsCounts : [1],
+                      backgroundColor: ['#4f46e5', '#38bdf8', '#60a5fa', '#93c5fd', '#dbeafe'],
+                  }],
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: { position: 'bottom' }
+                  }
+              }
+          });
+      }
+
+      const monthlyChart = document.getElementById('monthlyChart');
+      if (monthlyChart) {
+          new Chart(monthlyChart, {
+              type: 'line',
+              data: {
+                  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                  datasets: [{
+                      label: 'Avg Price',
+                      data: monthlyAvg,
+                      borderColor: '#4f46e5',
+                      backgroundColor: 'rgba(79, 70, 229, 0.18)',
+                      fill: true,
+                      tension: 0.35,
+                      pointRadius: 4,
+                  }],
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: { display: false }
+                  },
+                  scales: {
+                      y: { beginAtZero: true, ticks: { callback: value => '₹' + value } }
+                  }
+              }
+          });
+      }
+    </script>
+  </body>
+</html>
