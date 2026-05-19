@@ -2,6 +2,8 @@
 
 Lightweight Flask app that displays flight fare analytics and provides a fare prediction form powered by a trained Random Forest model.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/deep03102000/FlightForecast-Pro)
+
 ## Features
 
 - Dashboard metrics and charts (Chart.js)
